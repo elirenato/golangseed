@@ -2,16 +2,19 @@
 
 * [Revel framework] (https://revel.github.io/) is a high-productivity web framework for the [Go language](http://www.golang.org/).
 * [JSON Web Token] (https://github.com/elirenato/jwt) forked originaly from [https://github.com/benjic/jwt] (https://github.com/benjic/jwt).
+* Postgresql as the database.
+* pgmgr (https://github.com/rnubel/pgmgr) for migration tool.
 
-PS: This project is still in progress, be aware that is should be unfinshed and maybe with bugs.
+PS 1: This project is still in progress, be aware that it is unfinshed and maybe with bugs.
+PS 2: Import the Golang.postman_collection.json file of the repository to the Postman Chrome Extension, it has consumers examples of the Golang`s endpoints.
 
 ### Database 
 
 This project is using Postgresql and https://github.com/rnubel/pgmgr to control the migration.
 
 To initialize the database:
-* Create an rule called golandseed with 123456 password.
-* Create a database and set the owner as the new golandseed rule. We could use pgmgr db create command but it does not use the rule from the .pgmgr.json file as the owner of the new database.
+* Create an rule called golangseed with 123456 password.
+* Create a database and set the owner as the new golangseed rule. We could use pgmgr db create command but it does not use the rule from the .pgmgr.json file as the owner of the new database.
 * Install pgcrypto extension. Run "create extension pgcrypto" from pgadmin or pgsql into the current server.
 * run "pgmgr db migrate" to create the basic tables.
 
