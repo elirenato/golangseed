@@ -1,4 +1,4 @@
-# Golang seed project created using the following features:
+# Golang seed project created with the following features/capabilities:
 
 * [Revel framework] (https://revel.github.io/) is a high-productivity web framework for the [Go language](http://www.golang.org/).
 * [JSON Web Token] (https://github.com/elirenato/jwt) forked originaly from [https://github.com/benjic/jwt] (https://github.com/benjic/jwt).
