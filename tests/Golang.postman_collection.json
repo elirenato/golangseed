@@ -1,0 +1,54 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Golang",
+		"_postman_id": "96d7b050-47f4-5dcb-6978-61c7f3638657",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Users",
+			"request": {
+				"url": "http://localhost:9000/users",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDE3LTA1LTAyVDIxOjAxOjE2Ljg0MTI4NzE0Mi0wMzowMCIsInVzZXJfaWQiOjEsImF1dGhvcml0aWVzIjpbXX0.5yp-1rOjKqssOoMWqZgy2ldkK5gUt81R8iNzIrbB5kbCRSlLygbJQLSBm2xT8lMORqchqEwzCa_S4iAQyOXVSQ",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Authenticate",
+			"request": {
+				"url": "http://localhost:9000/authenticate",
+				"method": "POST",
+				"header": [
+					{
+						"key": "//Authorization",
+						"value": "Y2VwQGF6YXAuaW5mLmJyOmFkcGhZOXVXQUw0OXdjckE=",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"login\": \"admin\",\n\t\"password\": \"admin123456\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
