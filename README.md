@@ -5,8 +5,8 @@
 * Postgresql as the database.
 * pgmgr (https://github.com/rnubel/pgmgr) for migration tool.
 
-PS 1: This project is still in progress, be aware that it is unfinshed and maybe with bugs.
-PS 2: Import the Golang.postman_collection.json file of the repository to the Postman Chrome Extension, it has consumers examples of the Golang`s endpoints.
+* PS 1: This project is still in progress, be aware that it is unfinshed and maybe with bugs.
+* PS 2: Import the Golang.postman_collection.json file of the repository to the Postman Chrome Extension, it has consumers examples of the Golang`s endpoints.
 
 ### Database 
 
