@@ -1,3 +1,8 @@
+# TODO
+* The frontend (https://github.com/elirenato/login-flow) that have been used to work with this backend was using bcrypt (https://github.com/dcodeIO/bcrypt.js) to send encrypted password. Even that we are going to use https, its nice to have send password encrypted.
+* Localization feature.
+* Unit tests feature.
+
 # Golang seed project created with the following features/capabilities:
 
 * [Revel framework] (https://revel.github.io/) is a high-productivity web framework for the [Go language](http://www.golang.org/).

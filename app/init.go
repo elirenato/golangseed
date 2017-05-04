@@ -19,6 +19,7 @@ func init() {
 	revel.Filters = []revel.Filter{
 		revel.PanicFilter,             // Recover from panics and display an error page instead.
 		middleware.JWTFilter,             // Recover from panics and display an error page instead.
+		HeaderFilter,
 		revel.RouterFilter,            // Use the routing table to select the right Action
 		revel.FilterConfiguringFilter, // A hook for adding or removing per-Action filters.
 		revel.ParamsFilter,            // Parse parameters into Controller.Params.
@@ -49,7 +50,14 @@ var HeaderFilter = func(c *revel.Controller, fc []revel.Filter) {
 	c.Response.Out.Header().Add("X-Frame-Options", "SAMEORIGIN")
 	c.Response.Out.Header().Add("X-XSS-Protection", "1; mode=block")
 	c.Response.Out.Header().Add("X-Content-Type-Options", "nosniff")
-
+	c.Response.Out.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Response.Out.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE");
+	c.Response.Out.Header().Set("Access-Control-Allow-Headers", "Content-type, Authorization, Access-Control-Allow-Origin, Access-Control-Allow-Methods");
+	// c.Response.Out.Header().Add("Access-Control-Allow-Credentials", "true");
+	// Stop here if its Preflighted OPTIONS request
+    if c.Request.Method == "OPTIONS" {
+        return 
+    }
 	fc[0](c, fc[1:]) // Execute the next filter stage.
 }
 

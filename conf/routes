@@ -9,7 +9,7 @@ module:testrunner
 
 GET     /                                       App.Index
 GET     /users                                  Users.Index
-POST    /authenticate                           Users.authenticate
+POST    /login                                  Users.authenticate
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
