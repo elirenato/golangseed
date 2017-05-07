@@ -1,4 +1,4 @@
-package middleware
+package filters
 
 import (
 	"github.com/revel/revel"

@@ -8,8 +8,8 @@ module:testrunner
 
 
 GET     /                                       App.Index
-GET     /users                                  Users.Index
-POST    /login                                  Users.authenticate
+GET     /users                                  UsersController.Index
+POST    /login                                  UsersController.authenticate
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

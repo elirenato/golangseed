@@ -1,4 +1,4 @@
-package middleware
+package filters
 
 import (
 	"github.com/revel/revel"
@@ -80,8 +80,6 @@ Note: If everything looks good then Claims map made available via c.Args
 and can be accessed using c.Args[jwt.TOKEN_CLAIMS_KEY]
 */
 func JWTFilter(c *revel.Controller, fc []revel.Filter) {
-	fmt.Println(anonymousPaths)
-	fmt.Println(c.Request.URL.Path)
 	if !anonymousPaths.MatchString(c.Request.URL.Path) {
 		fmt.Println("1")
 		var token *JWTToken
