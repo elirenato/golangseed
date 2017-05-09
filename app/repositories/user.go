@@ -4,6 +4,7 @@ import (
 	"github.com/elirenato/golangseed/app/models"
 	"log"
 	"github.com/go-gorp/gorp"
+	"database/sql"
 )
 
 type UserRepository struct {
@@ -14,20 +15,13 @@ func NewUserRepository() UserRepository {
 	return UserRepository{} 
 }
 
-func (c UserRepository) ListAll(dbm *gorp.DbMap) ([]models.User, error) {
-	var users []models.User
-	_, err := dbm.Select(users, "select * from users order by id")
-	if err != nil  {
-		log.Println(err)
-		return nil, err
-	}	
-	return users, err
-}
-
-func (c UserRepository) FindByEmail(dbm *gorp.DbMap, email string) (*models.User, error) {
+func (c UserRepository) GetByEmail(dbm *gorp.DbMap, email string) (*models.User, error) {
 	var user models.User
 	err := dbm.SelectOne(&user, "select * from users where email=$1", email)
 	if err != nil  {
+		if sql.ErrNoRows == err {
+			return nil, nil
+		}
 		log.Println(err)
 		return nil, err
 	}	

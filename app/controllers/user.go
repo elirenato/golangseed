@@ -10,6 +10,8 @@ import (
 	"log"
 	"time"
 	"database/sql"
+	"strings"
+	"fmt"
 )
 
 type UserController struct {
@@ -18,13 +20,18 @@ type UserController struct {
 
 var userRepository = repositories.NewUserRepository()
 
-func (c UserController) Index() revel.Result {
-	users, err := userRepository.ListAll(Dbm)
+func (c UserController) Get() revel.Result {
+	email := c.Params.Get("email")
+	fmt.Printf("Get arrived ######## %s \n", email)
+	user, err := userRepository.GetByEmail(Dbm, email)
 	if err != nil {
 		log.Println(err)
 		return c.RenderInternalServerError()
 	}
-	return c.RenderOK(users)
+	if (user == nil) {
+		return c.RenderNotFound()
+	}
+	return c.RenderOK(user)
 }
 
 func (c UserController) Authenticate() revel.Result {
@@ -36,8 +43,12 @@ func (c UserController) Authenticate() revel.Result {
 		return c.RenderBadRequest("error.authentication")
 	}
 	var token string
-	user, err := userRepository.FindByEmail(Dbm, email)
+	user, err := userRepository.GetByEmail(Dbm, email)
 	if err == nil  {
+		if user == nil {
+			log.Println(c.Validation.Errors)
+			return c.RenderBadRequest("error.authentication")
+		}
 		err = bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(password))
 	}
 	if err == nil  {
@@ -46,7 +57,7 @@ func (c UserController) Authenticate() revel.Result {
 	if err != nil {
 		log.Println(err)
 		return c.RenderBadRequest("error.authentication")
-	}	
+	}
 	result := make(map[string]interface{})
 	result["authenticated"] = true
 	result["token"] = token
@@ -64,36 +75,29 @@ func (c UserController) Register() revel.Result {
 		log.Println(c.Validation.Errors)
 		return c.RenderBadRequest("error.registration")
 	}
-	user, err := userRepository.FindByEmail(Dbm, email)
-	if err != nil && err != sql.ErrNoRows {
-		log.Println(err)
-		return c.RenderInternalServerError()
-	}
+	var err error
 	var hashedPassword []byte
 	hashedPassword, err = bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil && err != sql.ErrNoRows {
 		log.Println(err)
 		return c.RenderInternalServerError()
 	}
-	user = &models.User{
-		// Id: nil,
+	user := &models.User{
 		FirstName: commons.InitializeString(firstName),
-		// LastName: nil,
 		Email: commons.InitializeString(email),
-		// ImageUrl: nil,
 		Activated: commons.InitializeBool(true), //TODO create the activation flow by email
 		Language: commons.InitializeString("en-US"), //TODO option to change language
-		// ActivationKey: nil,
-		// Resetkey: nil,
-		// ResetDate: nil,
 		CreatedDate: commons.InitializeTime(time.Now()),
-		// LastModifiedDate: nil,
 		PasswordHash: commons.InitializeString(string(hashedPassword)),
-		// Password: nil,
 	}
 	err = userRepository.Persist(Dbm, user);
 	if err != nil {
-		log.Println(err)
+		// TODO improve the error handler for user already exists
+		// pqError := err.(*pq.Error)
+		// pqError.Constraint is empty, why?
+		if strings.Contains(err.Error(), models.UserUniqueKeyName) {
+			return c.RenderBadRequest("error.registration.alreadyExists")
+		}
 		return c.RenderInternalServerError()
 	}
  	result := make(map[string]interface{})

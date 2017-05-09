@@ -7,3 +7,4 @@
 
 error.authentication=The email address or password is not valid
 error.registration=First name, email address or password does not is not valid
+error.registration.alreadyExists=An user already exists with this email address

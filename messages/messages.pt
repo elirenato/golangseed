@@ -7,3 +7,4 @@
 
 error.authentication=Email ou senha não são válidos
 error.registration=Nome, email ou senha não são válidos
+error.registration.alreadyExists=Já existe um usuário com este email

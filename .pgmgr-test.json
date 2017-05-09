@@ -3,7 +3,7 @@
   "port": 5432,
   "username": "golangseed",
   "password": "123456",
-  "database": "golangseed",
+  "database": "golangseed-test",
   "sslmode": "disable",
   "migration-table": "public.schema_migrations",
   "migration-folder": "db/migrate",

@@ -1,3 +1,5 @@
+create extension pgcrypto;
+
 CREATE TABLE users
 (
   id bigserial NOT NULL,
@@ -25,7 +27,7 @@ INSERT INTO users (
     crypt('admin123456', gen_salt('bf', 10)), --Change to your password
     'Administrator', 
     'Administrator', 
-    'elirenato2000@gmail.com', --Change to your email
+    'admin@localhost', --Change to your email
      NULL, 
      true, 
      'en-US',
@@ -56,5 +58,5 @@ CREATE TABLE users_authorities
 );
 
 INSERT INTO users_authorities VALUES (
-    (select id from users where email = 'elirenato2000@gmail.com'),
+    (select id from users order by id limit 1),
     'ROLE_ADMIN');

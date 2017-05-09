@@ -7,7 +7,6 @@ import (
 )
 
 type BaseController struct {
-    // GorpController
     *revel.Controller
 }
 
@@ -15,6 +14,12 @@ func (c BaseController) RenderOK(o interface{}) (revel.Result) {
     c.Response.Status = http.StatusOK
     c.Response.ContentType = commons.ApplicationJsonContentType
     return c.RenderJSON(o)
+}
+
+func (c BaseController) RenderNotFound() (revel.Result) {
+    c.Response.Status = http.StatusNotFound
+    c.Response.ContentType = commons.ApplicationJsonContentType
+    return c.RenderJSON(nil)
 }
 
 func (c BaseController) RenderBadRequest(messageKey string, args ...interface{}) (revel.Result) {
@@ -29,5 +34,5 @@ func (c BaseController) RenderBadRequest(messageKey string, args ...interface{})
 func (c BaseController) RenderInternalServerError() (revel.Result) {
     c.Response.Status = http.StatusInternalServerError
     c.Response.ContentType = commons.ApplicationJsonContentType
-    return c.Render();
+    return c.RenderJSON(nil)
 }

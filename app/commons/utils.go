@@ -2,6 +2,7 @@ package commons
 
 import (
 	 "time"
+	 "strings"
 )
 
 const (
@@ -18,4 +19,9 @@ func InitializeBool(value bool) *bool {
 
 func InitializeTime(value time.Time) *time.Time {
 	return &value
+}
+
+func IsBlank(value string) bool {
+	value = strings.Trim(value, " ")
+	return len(value) <= 0
 }

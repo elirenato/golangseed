@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	UserUniqueKeyName = "user_email_key"
+)
+
 type User struct {
 	Id 					*int64  `db:"id, primarykey, autoincrement"`
 	FirstName			*string `db:"first_name"`

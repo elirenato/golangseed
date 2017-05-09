@@ -1,45 +1,96 @@
 package tests
 
 import (
-	"github.com/revel/revel/testing"
 	"encoding/json"
 	"strings"
 	"github.com/elirenato/golangseed/app/commons"
-	"github.com/elirenato/golangseed/app/controllers"
-	"database/sql"
-	"github.com/go-gorp/gorp"
+	"net/http"
+	"fmt"
 )
 
 type UserTest struct {
-	testing.TestSuite
+	BaseTest
 }
 
-var Txn *gorp.Transaction
+const (
+	TestUserEmail = "testuser@localhost"
+	TestUserFirstName = "User First Name"
+	InvalidTestUserEmail = "noexistentuser@localhost"
+)
 
-func (t *UserTest) Before() {
-	println("Set up")
-	var err error
-	Txn, err = controllers.Dbm.Begin()
-	if err != nil {
-		panic(err)
-	}
-}
-
-func (t *UserTest) TestRegister() {
+func (t *UserTest) Test001Register() {
 	body := make(map[string]interface{})
-	body["email"] = "admin@localhost"
-	body["firstName"] = "Eli"
+	body["email"] = TestUserEmail
+	body["firstName"] = TestUserFirstName
 	body["password"] = "123456"
 	request,_ := json.Marshal(body)
 	t.Post("/register", commons.ApplicationJsonContentType, strings.NewReader(string(request)))
 	t.AssertOk()
 	t.AssertContentType(commons.ApplicationJsonContentType)
+	t.AssertContains("{\"created\":true}")
 }
 
-func (t *UserTest) After() {
-	println("Tear down")
-	if err := Txn.Rollback(); err != nil && err != sql.ErrTxDone {
-		panic(err)
-	}
-	Txn = nil
+func (t *UserTest) Test002RegisterEmptyField() {
+	body := make(map[string]interface{})
+	body["email"] = TestUserEmail
+	// body["firstName"] = "Eli"
+	body["password"] = "123456"
+	request,_ := json.Marshal(body)
+	t.Post("/register", commons.ApplicationJsonContentType, strings.NewReader(string(request)))
+	t.AssertStatus(http.StatusBadRequest)
+	t.AssertContentType(commons.ApplicationJsonContentType)
+	t.AssertContains("\"error\":\"error.registration\"")	
+}
+
+func (t *UserTest) Test003RegisterUserAlreadyExists() {
+	body := make(map[string]interface{})
+	body["email"] = TestUserEmail
+	body["firstName"] = "Eli 2"
+	body["password"] = "789611154"
+	request,_ := json.Marshal(body)
+	t.Post("/register", commons.ApplicationJsonContentType, strings.NewReader(string(request)))
+	t.AssertStatus(http.StatusBadRequest)
+	t.AssertContentType(commons.ApplicationJsonContentType)
+	t.AssertContains("\"error\":\"error.registration.alreadyExists\"")	
+}
+
+func (t *UserTest) Test100Authentication() {
+	body := make(map[string]interface{})
+	body["email"] = TestUserEmail
+	body["password"] = "123456"
+	request,_ := json.Marshal(body)
+	t.Post("/authenticate", commons.ApplicationJsonContentType, strings.NewReader(string(request)))
+	t.AssertOk()
+	t.AssertContentType(commons.ApplicationJsonContentType)
+	t.AssertContains("\"authenticated\":true")
+	t.AssertContains("\"token\":")
+}
+
+func (t *UserTest) Test101AuthenticationInvalidCredentials() {
+	body := make(map[string]interface{})
+	body["email"] = InvalidTestUserEmail
+	body["password"] = "123456"
+	request,_ := json.Marshal(body)
+	t.Post("/authenticate", commons.ApplicationJsonContentType, strings.NewReader(string(request)))
+	t.AssertStatus(http.StatusBadRequest)
+	t.AssertContentType(commons.ApplicationJsonContentType)
+	t.AssertContains("\"error\":\"error.authentication\"")
+}
+
+func (t *UserTest) Test201GetUserSuccess() {
+	url := fmt.Sprintf("/user?email=%s", TestUserEmail)
+	req := t.GetCustom(t.Url(url))		
+	t.setAuthorization(&req.Header)
+	req.Send()
+	t.AssertOk()
+	t.AssertContains(fmt.Sprintf("\"Email\":\"%s\"", TestUserEmail))
+	t.AssertContains(fmt.Sprintf("\"FirstName\":\"%s\"", TestUserFirstName))
+}
+
+func (t *UserTest) Test202GetNoExistentUser() {
+	url := fmt.Sprintf("/user?email=%s", InvalidTestUserEmail)
+	req := t.GetCustom(t.Url(url))		
+	t.setAuthorization(&req.Header)
+	req.Send()
+	t.AssertNotFound()
 }
