@@ -5,4 +5,5 @@
 # - http://www.rfc-editor.org/rfc/bcp/bcp47.txt
 # - http://www.w3.org/International/questions/qa-accept-lang-locales
 
-authentication.invalidCredentials=Invalid User name or password
+error.authentication=The email address or password is not valid
+error.registration=First name, email address or password does not is not valid

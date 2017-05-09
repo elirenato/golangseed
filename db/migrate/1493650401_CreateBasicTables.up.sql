@@ -1,7 +1,6 @@
 CREATE TABLE users
 (
   id bigserial NOT NULL,
-  login character varying(50) NOT NULL,
   password_hash character varying(60),
   first_name character varying(50),
   last_name character varying(50),
@@ -11,33 +10,28 @@ CREATE TABLE users
   lang_key character varying(5),
   activation_key character varying(20),
   reset_key character varying(20),
-  created_by character varying(50) NOT NULL,
   created_date timestamp without time zone NOT NULL,
   reset_date timestamp without time zone,
-  last_modified_by character varying(50),
   last_modified_date timestamp without time zone,
   CONSTRAINT pk_user PRIMARY KEY (id),
-  CONSTRAINT user_email_key UNIQUE (email),
-  CONSTRAINT user_login_key UNIQUE (login)
+  CONSTRAINT user_email_key UNIQUE (email)
 );
 
 INSERT INTO users (
-    login, password_hash, first_name, last_name, email, image_url, 
-            activated, lang_key, activation_key, reset_key, created_by, created_date, 
-            reset_date, last_modified_by, last_modified_date) 
+    password_hash, first_name, last_name, email, image_url, 
+            activated, lang_key, activation_key, reset_key, created_date, 
+            reset_date, last_modified_date) 
     VALUES (
-    'admin', 
-    crypt('admin123456', gen_salt('bf', 10)), --Change this PASSWORD for you own admin password
+    crypt('admin123456', gen_salt('bf', 10)), --Change to your password
     'Administrator', 
     'Administrator', 
-    'admin@localhost',
+    'elirenato2000@gmail.com', --Change to your email
      NULL, 
      true, 
-     'en_US',
+     'en-US',
      NULL, NULL, 
-     'admin', 
      '2017-04-13 21:33:16.367254', 
-     NULL, 'admin', NULL);
+     NULL, NULL);
 
 CREATE TABLE authorities
 (
@@ -62,5 +56,5 @@ CREATE TABLE users_authorities
 );
 
 INSERT INTO users_authorities VALUES (
-    (select id from users where login = 'admin'),
+    (select id from users where email = 'elirenato2000@gmail.com'),
     'ROLE_ADMIN');

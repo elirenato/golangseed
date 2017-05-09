@@ -6,10 +6,9 @@
 module:testrunner
 # module:jobs
 
-
-GET     /                                       App.Index
-GET     /users                                  UsersController.Index
-POST    /login                                  UsersController.authenticate
+GET     /users                                  UserController.Index
+POST    /login                                  UserController.Authenticate
+POST    /register                               UserController.Register
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
