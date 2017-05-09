@@ -3,21 +3,28 @@ package controllers
 import (
 	"github.com/revel/revel"
     "net/http"
+    "github.com/elirenato/golangseed/app/commons"
 )
 
 type BaseController struct {
-    GorpController
+    *revel.Controller
 }
 
-func (c BaseController) RenderOK(result interface{}) (revel.Result) {
+func (c BaseController) RenderOK(o interface{}) (revel.Result) {
     c.Response.Status = http.StatusOK
-    c.Response.ContentType = "application/json; charset=utf-8"
-    return c.RenderJSON(result)
+    c.Response.ContentType = commons.ApplicationJsonContentType
+    return c.RenderJSON(o)
+}
+
+func (c BaseController) RenderNotFound() (revel.Result) {
+    c.Response.Status = http.StatusNotFound
+    c.Response.ContentType = commons.ApplicationJsonContentType
+    return c.RenderJSON(nil)
 }
 
 func (c BaseController) RenderBadRequest(messageKey string, args ...interface{}) (revel.Result) {
     c.Response.Status = http.StatusBadRequest
-    c.Response.ContentType = "application/json; charset=utf-8"
+    c.Response.ContentType = commons.ApplicationJsonContentType
     result := make(map[string]interface{})
     result["error"] = messageKey
     result["message"] = c.Message(messageKey)
@@ -26,5 +33,6 @@ func (c BaseController) RenderBadRequest(messageKey string, args ...interface{})
 
 func (c BaseController) RenderInternalServerError() (revel.Result) {
     c.Response.Status = http.StatusInternalServerError
-    return c.Render();
+    c.Response.ContentType = commons.ApplicationJsonContentType
+    return c.RenderJSON(nil)
 }

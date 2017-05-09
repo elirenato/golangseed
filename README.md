@@ -1,26 +1,23 @@
 # Golang seed project created with the following features/capabilities:
 
-* [Revel framework] (https://revel.github.io/) is a high-productivity web framework for the [Go language](http://www.golang.org/).
-* [JSON Web Token] (https://github.com/elirenato/jwt) forked originaly from [https://github.com/benjic/jwt] (https://github.com/benjic/jwt).
-* Postgresql as the database.
-* pgmgr (https://github.com/rnubel/pgmgr) for migration tool.
+* [Revel framework] (https://revel.github.io/) is a high-productivity web framework for the [Go language](http://www.golang.org/). Feature of Revel framework that have been used by this project: Hot Code Reload, Routing, Internationalization and Unitest for now.
+* Authentication using [JSON Web Token] (https://github.com/elirenato/jwt) forked originaly from [https://github.com/benjic/jwt] (https://github.com/benjic/jwt).
+* Migration tool: [pgmgr] (https://github.com/rnubel/pgmgr) for database updates and changelog.
 
 * PS 1: This project is still in progress, be aware that it is unfinshed and maybe with bugs.
 * PS 2: Import the Golang.postman_collection.json file of the repository to the Postman Chrome Extension, it has consumers examples of the Golang`s endpoints.
 
-### Database 
+### Database
 
-This project is using Postgresql and https://github.com/rnubel/pgmgr to control the migration.
+The seed project uses PostgreSQL and it will connect to the database using the username golangseed and password 123456, so, create a new rule with these credentials, after that run the commands below to initialize the database:
 
-To initialize the database:
-* Create an rule called golangseed with 123456 password.
-* Create a database and set the owner as the new golangseed rule. We could use pgmgr db create command but it does not use the rule from the .pgmgr.json file as the owner of the new database.
-* Install pgcrypto extension. Run "create extension pgcrypto" from pgadmin or pgsql into the current server.
-* run "pgmgr db migrate" to create the basic tables.
+* run "pgmgr db create" to database.
+
+* run "pgmgr db migrate" to update the database with the necessary tables.
 
 ### Start the web server:
 
-   revel run github.com/elirenato/golangseed
+   ./run.sh or revel run github.com/elirenato/golangseed
 
 ### Go to http://localhost:9000/ and you'll see:
 
@@ -29,7 +26,11 @@ To initialize the database:
   "message": "Invalid or token is not provided"
 }
 
-All routes are protected for know using Json web token
+All routes are protected using Json web token
+
+### Run unit tests:
+
+   ./unittest.sh
 
 ## Code Layout
 
@@ -62,5 +63,4 @@ The directory structure of a generated Revel application:
 * The [API documentation](https://godoc.org/github.com/revel/revel).
 
 # TODO
-* Unit tests feature.
 * The frontend (https://github.com/elirenato/login-flow) that have been used to work with this backend was using bcrypt (https://github.com/dcodeIO/bcrypt.js) to send encrypted password. Even that we are going to use https, its nice to have send password encrypted.
