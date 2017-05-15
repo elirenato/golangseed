@@ -100,7 +100,17 @@ func (c UserController) Register() revel.Result {
 		}
 		return c.RenderInternalServerError()
 	}
+	err = bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(password))
+	var token string
+	if err == nil  {
+		token, err = filters.CreateToken(*user.Id,[]string{})	
+	}
+	if err != nil {
+		log.Println(c.Validation.Errors)
+		return c.RenderBadRequest("error.registration")
+	}
  	result := make(map[string]interface{})
-	result["created"] = true
-	return c.RenderOK(result)	
+	result["registered"] = true
+	result["token"] = token
+	return c.RenderOK(result)
 }
