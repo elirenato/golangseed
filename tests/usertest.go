@@ -13,8 +13,8 @@ type UserTest struct {
 }
 
 const (
-	TestUserEmail = "testuser@localhost"
-	TestUserFirstName = "User First Name"
+	TestUserEmail = "testuser@localhost.com"
+	TestUserFirstName = "UserFirstName"
 	InvalidTestUserEmail = "noexistentuser@localhost"
 )
 
@@ -27,7 +27,7 @@ func (t *UserTest) Test001Register() {
 	t.Post("/register", commons.ApplicationJsonContentType, strings.NewReader(string(request)))
 	t.AssertOk()
 	t.AssertContentType(commons.ApplicationJsonContentType)
-	t.AssertContains("{\"created\":true}")
+	t.AssertContains("\"registered\":true")
 }
 
 func (t *UserTest) Test002RegisterEmptyField() {
@@ -78,7 +78,7 @@ func (t *UserTest) Test101AuthenticationInvalidCredentials() {
 }
 
 func (t *UserTest) Test201GetUserSuccess() {
-	url := fmt.Sprintf("/user?email=%s", TestUserEmail)
+	url := fmt.Sprintf("/user/%s", TestUserEmail)
 	req := t.GetCustom(t.Url(url))		
 	t.setAuthorization(&req.Header)
 	req.Send()

@@ -31,6 +31,9 @@ func InitDB() {
 	//add table user to ORM. The name of the table is users to avoid conflict with "select * from User" of postgres
 	t := Dbm.AddTableWithName(models.User{},"users").SetKeys(true, "Id")
 	t.ColMap("Password").Transient = true
+
+	t = Dbm.AddTableWithName(models.Group{},"groups").SetKeys(true, "Id")
+	
 	Dbm.TraceOn("[gorp]", revel.INFO)
 }
 

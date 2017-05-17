@@ -8,4 +8,10 @@ pgmgr db create
 
 pgmgr db migrate
 
-revel test github.com/elirenato/golangseed test
+
+if [ "x$1" != "x" ]; then
+    revel test github.com/elirenato/golangseed test $1
+else 
+    revel test github.com/elirenato/golangseed test
+fi
+

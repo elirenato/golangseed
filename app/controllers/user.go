@@ -20,9 +20,11 @@ type UserController struct {
 
 var userRepository = repositories.NewUserRepository()
 
-func (c UserController) Get() revel.Result {
-	email := c.Params.Get("email")
-	fmt.Printf("Get arrived ######## %s \n", email)
+func (c UserController) Read(email string) revel.Result {
+	if commons.IsBlank(email) {
+		log.Println("Param required not informed")
+		return c.RenderInternalServerError()
+	}
 	user, err := userRepository.GetByEmail(Dbm, email)
 	if err != nil {
 		log.Println(err)
@@ -68,9 +70,9 @@ func (c UserController) Register() revel.Result {
 	firstName := c.Params.Get("firstName")
 	email := c.Params.Get("email") 
 	password := c.Params.Get("password")
-	models.ValidateFirstName(c.Validation, firstName)
-	models.ValidateEmail(c.Validation, email)
-	models.ValidatePassword(c.Validation, password)
+	models.ValidateFirstName(c.Validation, firstName).Message(fmt.Sprintf("First name not filled: %s", firstName))
+	models.ValidateEmail(c.Validation, email).Message("Email is not filled or is invalid")
+	models.ValidatePassword(c.Validation, password).Message("Password not filled")
 	if c.Validation.HasErrors() {
 		log.Println(c.Validation.Errors)
 		return c.RenderBadRequest("error.registration")
@@ -96,6 +98,7 @@ func (c UserController) Register() revel.Result {
 		// pqError := err.(*pq.Error)
 		// pqError.Constraint is empty, why?
 		if strings.Contains(err.Error(), models.UserUniqueKeyName) {
+			log.Println(fmt.Sprintf("An user already exists with the name %s", email))
 			return c.RenderBadRequest("error.registration.alreadyExists")
 		}
 		return c.RenderInternalServerError()

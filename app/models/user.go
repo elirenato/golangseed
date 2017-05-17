@@ -32,7 +32,7 @@ func (u *User) String() string {
 	return fmt.Sprintf("[Email: %s]", u.Email)
 }
 
-var userRegex = regexp.MustCompile("^\\w*$")
+var emailPattern = regexp.MustCompile("^[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[a-zA-Z0-9](?:[\\w-]*[\\w])?$")
 
 func ValidateFirstName(v *revel.Validation, firstName string) *revel.ValidationResult {
 	return v.Check(firstName,
@@ -53,8 +53,6 @@ func ValidatePassword(v *revel.Validation, password string) *revel.ValidationRes
 func ValidateEmail(v *revel.Validation, email string) *revel.ValidationResult {	
 	return v.Check(email,
 		revel.Required{},
-		revel.MaxSize{50},
-		revel.MinSize{5},
-		//TODO add properly email validation
+		revel.Match{emailPattern},
 	)
 }
