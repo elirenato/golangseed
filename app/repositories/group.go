@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"github.com/elirenato/golangseed/app/models"
-	"github.com/go-gorp/gorp"
+	"github.com/elirenato/gorp"
 )
 
 type GroupRepository struct {

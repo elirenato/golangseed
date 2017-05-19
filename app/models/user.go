@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/revel/revel"
 	"regexp"
-	"time"
+	"github.com/elirenato/null"
 )
 
 const (
@@ -12,20 +12,20 @@ const (
 )
 
 type User struct {
-	Id 					*int64  `db:"id, primarykey, autoincrement"`
-	FirstName			*string `db:"first_name"`
-	LastName			*string `db:"last_name"`
-	Email				*string` db:"email"`
-	ImageUrl			*string `db:"image_url"`
-	Activated			*bool	`json:"-" db:"activated"`
-	Language			*string `db:"lang_key"`
-	ActivationKey		*string	`json:"-" db:"activation_key"`
-	Resetkey			*string	`json:"-" db:"reset_key"`
-	CreatedDate			*time.Time	`json:"-" db:"created_date"`
-	ResetDate			*time.Time	`json:"-" db:"reset_date"`
-	LastModifiedDate	*time.Time	`json:"-" db:"last_modified_date"`
-	PasswordHash		*string	`json:"-" db:"password_hash"`
-	Password			*string	`json:"-" db:"-"`
+	Id 					null.Int  `db:"id, primarykey, autoincrement"`
+	FirstName			null.String `db:"first_name"`
+	LastName			null.String `db:"last_name"`
+	Email				null.String` db:"email"`
+	ImageUrl			null.String `db:"image_url"`
+	Activated			null.Bool	`json:"-" db:"activated"`
+	Language			null.String `db:"lang_key"`
+	ActivationKey		null.String	`json:"-" db:"activation_key"`
+	Resetkey			null.String	`json:"-" db:"reset_key"`
+	CreatedDate			null.Time	`json:"-" db:"created_date"`
+	ResetDate			null.Time	`json:"-" db:"reset_date"`
+	LastModifiedDate	null.Time	`json:"-" db:"last_modified_date"`
+	PasswordHash		null.String	`json:"-" db:"password_hash"`
+	Password			null.String	`json:"-" db:"-"`
 }
 
 func (u *User) String() string {

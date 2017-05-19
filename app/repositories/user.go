@@ -3,7 +3,7 @@ package repositories
 import (
 	"github.com/elirenato/golangseed/app/models"
 	"log"
-	"github.com/go-gorp/gorp"
+	"github.com/elirenato/gorp"
 	"database/sql"
 )
 

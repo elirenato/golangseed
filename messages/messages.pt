@@ -6,5 +6,11 @@
 # - http://www.w3.org/International/questions/qa-accept-lang-locales
 
 error.authentication=Email ou senha não são válidos
+
 error.registration=Nome, email ou senha não são válidos
 error.registration.alreadyExists=Já existe um usuário com este email
+
+error.group.alreadyExists=Já existe um grupo com este nome
+
+error.generic.validation=Um ou mais campos requeridos não foram preenchidos ou são inválidos
+error.generic.invalidBody=Corpo da mensagem não é um JSON reconhecido pelo sistema

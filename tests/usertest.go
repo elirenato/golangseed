@@ -39,7 +39,7 @@ func (t *UserTest) Test002RegisterEmptyField() {
 	t.Post("/register", commons.ApplicationJsonContentType, strings.NewReader(string(request)))
 	t.AssertStatus(http.StatusBadRequest)
 	t.AssertContentType(commons.ApplicationJsonContentType)
-	t.AssertContains("\"error\":\"error.registration\"")	
+	t.AssertContains("\"error\":\"error.registration.validation\"")	
 }
 
 func (t *UserTest) Test003RegisterUserAlreadyExists() {

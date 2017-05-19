@@ -3,7 +3,7 @@ package repositories
 import (
 	"log"
 	"database/sql"
-	"github.com/go-gorp/gorp"
+	"github.com/elirenato/gorp"
 	"fmt"
 	"errors"
 )

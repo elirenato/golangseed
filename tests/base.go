@@ -38,7 +38,7 @@ func (t *BaseTest) Before() {
 			log.Fatal(fmt.Sprintf("User %s not found", defaultUserEmail))
 			return
 		}
-		authenticationToken, err = filters.CreateToken(*user.Id,[]string{})	
+		authenticationToken, err = filters.CreateToken(user.Id.Int64,[]string{})	
 		if err != nil {
 			log.Fatal(err)
 			return

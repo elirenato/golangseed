@@ -12,6 +12,7 @@ import (
 	"database/sql"
 	"strings"
 	"fmt"
+	"github.com/elirenato/null"
 )
 
 type UserController struct {
@@ -31,13 +32,20 @@ func (c UserController) Read(email string) revel.Result {
 		return c.RenderInternalServerError()
 	}
 	if (user == nil) {
+		log.Println(fmt.Sprintf("User not found with the email %s", email))
 		return c.RenderNotFound()
 	}
 	return c.RenderOK(user)
 }
 
 func (c UserController) Authenticate() revel.Result {
-	email, password := c.Params.Get("email"), c.Params.Get("password") 
+	params := map[string]string{}
+	err := commons.DecodeJsonBody(c.Request.Body, &params)
+	if err != nil {
+		log.Println(err)
+		return c.RenderBadRequest("error.generic.invalidBody")
+	}
+	email, password := params["email"], params["password"]
 	models.ValidateEmail(c.Validation, email)
 	models.ValidatePassword(c.Validation, password)
 	if c.Validation.HasErrors() {
@@ -51,10 +59,10 @@ func (c UserController) Authenticate() revel.Result {
 			log.Println(c.Validation.Errors)
 			return c.RenderBadRequest("error.authentication")
 		}
-		err = bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(password))
+		err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash.String), []byte(password))
 	}
 	if err == nil  {
-		token, err = filters.CreateToken(*user.Id,[]string{})	
+		token, err = filters.CreateToken(user.Id.Int64,[]string{})	
 	}
 	if err != nil {
 		log.Println(err)
@@ -67,17 +75,22 @@ func (c UserController) Authenticate() revel.Result {
 }
 
 func (c UserController) Register() revel.Result {
-	firstName := c.Params.Get("firstName")
-	email := c.Params.Get("email") 
-	password := c.Params.Get("password")
-	models.ValidateFirstName(c.Validation, firstName).Message(fmt.Sprintf("First name not filled: %s", firstName))
-	models.ValidateEmail(c.Validation, email).Message("Email is not filled or is invalid")
-	models.ValidatePassword(c.Validation, password).Message("Password not filled")
+	params := map[string]string{}
+	err := commons.DecodeJsonBody(c.Request.Body, &params)
+	if err != nil {
+		log.Println(err)
+		return c.RenderBadRequest("error.generic.invalidBody")
+	}	
+	firstName := params["firstName"]
+	email := params["email"]
+	password := params["password"]
+	models.ValidateFirstName(c.Validation, firstName)
+	models.ValidateEmail(c.Validation, email)
+	models.ValidatePassword(c.Validation, password)
 	if c.Validation.HasErrors() {
 		log.Println(c.Validation.Errors)
-		return c.RenderBadRequest("error.registration")
+		return c.RenderBadRequest("error.registration.validation")
 	}
-	var err error
 	var hashedPassword []byte
 	hashedPassword, err = bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil && err != sql.ErrNoRows {
@@ -85,12 +98,12 @@ func (c UserController) Register() revel.Result {
 		return c.RenderInternalServerError()
 	}
 	user := &models.User{
-		FirstName: commons.InitializeString(firstName),
-		Email: commons.InitializeString(email),
-		Activated: commons.InitializeBool(true), //TODO create the activation flow by email
-		Language: commons.InitializeString("en-US"), //TODO option to change language
-		CreatedDate: commons.InitializeTime(time.Now()),
-		PasswordHash: commons.InitializeString(string(hashedPassword)),
+		FirstName: null.NewString(firstName, true),
+		Email: null.NewString(email, true),
+		Activated: null.NewBool(true, true), //TODO create the activation flow by email
+		Language: null.NewString("en-US", true), //TODO option to change language
+		CreatedDate: null.NewTime(time.Now(), true),
+		PasswordHash: null.NewString(string(hashedPassword), true),
 	}
 	err = userRepository.Persist(Dbm, user);
 	if err != nil {
@@ -103,10 +116,10 @@ func (c UserController) Register() revel.Result {
 		}
 		return c.RenderInternalServerError()
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash.String), []byte(password))
 	var token string
 	if err == nil  {
-		token, err = filters.CreateToken(*user.Id,[]string{})	
+		token, err = filters.CreateToken(user.Id.Int64,[]string{})	
 	}
 	if err != nil {
 		log.Println(c.Validation.Errors)

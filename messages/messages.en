@@ -6,5 +6,11 @@
 # - http://www.w3.org/International/questions/qa-accept-lang-locales
 
 error.authentication=The email address or password is not valid
-error.registration=First name, email address or password does not is not valid
+
+error.registration.validation=First name, email address or password does not is not valid
 error.registration.alreadyExists=An user already exists with this email address
+
+error.group.alreadyExists=A group already exists with this name
+
+error.generic.validation=One or more required fields were not filled or they have invalid values
+error.generic.invalidBody=Invalid request body. It is not a valid json information
