@@ -17,14 +17,10 @@ func NewGroupRepository(dbm **gorp.DbMap) GroupRepository {
 }
 
 func (c GroupRepository) FindOne(id int64) (*models.Group, error) {
-	var entity models.Group
-	result, err := c.findOne(id, &entity)
+	var modelPtr models.Group
+	result, err := c.findOne(id, &modelPtr)
 	if !result {
 		return nil, err
 	} 
-	return &entity, nil
-}
-
-func (c BaseRepository) Persist(dbm *gorp.DbMap, modelPointer interface{}) (error) {
-	return dbm.Insert(modelPointer)
+	return &modelPtr, nil
 }

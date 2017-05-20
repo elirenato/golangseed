@@ -81,7 +81,6 @@ and can be accessed using c.Args[jwt.TOKEN_CLAIMS_KEY]
 */
 func JWTFilter(c *revel.Controller, fc []revel.Filter) {
 	if !anonymousPaths.MatchString(c.Request.URL.Path) {
-		fmt.Println("1")
 		var token *JWTToken
 		token, err := parseFromRequest(c.Request.Request)
 		if err != nil {

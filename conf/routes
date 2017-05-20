@@ -12,8 +12,8 @@ POST    /register                               UserController.Register
 
 #CRUD group
 POST    /group                                   GroupController.Create
-GET     /group/:id                               GroupController.Read
 PUT     /group                                   GroupController.Update
+GET     /group/:id                               GroupController.Read
 DELETE  /group/:id                               GroupController.Delete
 
 # Ignore favicon requests

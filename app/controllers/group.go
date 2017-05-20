@@ -16,93 +16,88 @@ type GroupController struct {
 	BaseController
 }
 
-var groupRepository = repositories.NewGroupRepository(&Dbm)
+var groupRepository = repositories.NewGroupRepository(&commons.Dbm)
+
+func (c GroupController) treatAndReturnErrorOnSave(err error, model *models.Group) revel.Result {
+	if strings.Contains(err.Error(), models.GroupUniqueName) {
+		log.Println(fmt.Sprintf("A record already exists with the name %s", model.Name.String))
+		return c.RenderBadRequest("error.group.alreadyExists")
+	}
+	log.Println(err)
+	return c.RenderInternalServerError("error.internalServerError")
+}
 
 func (c GroupController) Create() revel.Result {
 	dto := models.Group{}
-	err := commons.DecodeJsonBody(c.Request.Body, &dto)
-	if err != nil {
-		log.Println(err)
-		return c.RenderBadRequest("error.generic.invalidBody")
-	}
-	//validate the basic fields
-	dto.Validate(c.Validation)
-	if c.Validation.HasErrors() {
-		log.Println(c.Validation.Errors)
-		return c.RenderBadRequest("error.generic.validation")
+	result := c.decodeAndValidateRequest(&dto)
+	if result != nil {
+		return result
 	}
 	if dto.Id.Valid {
-		log.Println("Should be an update instead of create to an existent resource")
-		return c.RenderInternalServerError()		
+		return c.RenderBadRequest("error.generic.invalidCreateId")
 	}
 	model := &models.Group{
 		Name: dto.Name,
 		CreatedDate: null.NewTime(time.Now(), true),
 	}
-	err = groupRepository.Persist(Dbm, model)
+	err := groupRepository.Persist(model)
 	if err != nil {
-		// TODO improve the error handler for user already exists
-		// pqError := err.(*pq.Error)
-		// pqError.Constraint is empty, why?
-		if strings.Contains(err.Error(), models.GroupUniqueName) {
-			log.Println(fmt.Sprintf("A record already exists with the name %s", model.Name.String))
-			return c.RenderBadRequest("error.group.alreadyExists")
-		}
-		return c.RenderInternalServerError()
+		return c.treatAndReturnErrorOnSave(err, model)
 	}
 	return c.RenderOK(model)
+}
+
+func (c GroupController) Update() revel.Result {
+	dto := models.Group{}
+	result := c.decodeAndValidateRequest(&dto)
+	if result != nil {
+		return result
+	}
+	if !dto.Id.Valid {
+		return c.RenderBadRequest("error.generic.invalidUpdateId")
+	}
+	model, err := groupRepository.FindOne(dto.Id.Int64)
+	if err != nil {
+		log.Println(err)
+		return c.RenderInternalServerError("error.internalServerError")
+	}
+	if model == nil {
+		return c.RenderNotFound("error.generic.notFound")
+	}
+	model.Name = dto.Name
+	model.LastModifiedDate = null.NewTime(time.Now(), true)
+	err = groupRepository.Update(model)
+	if err != nil {
+		return c.treatAndReturnErrorOnSave(err, model)
+	}
+	return c.RenderOK(model)	
 }
 
 func (c GroupController) Read(id int64) revel.Result {
-	fmt.Println("### ");
-	fmt.Println(id);
 	model, err := groupRepository.FindOne(id)
 	if err != nil {
-		return c.RenderInternalServerError()
+		log.Println(err)
+		return c.RenderInternalServerError("error.internalServerError")
 	}
 	if (model == nil) {
-		return c.RenderNotFound()
+		return c.RenderNotFound("error.generic.notFound")
 	}
 	return c.RenderOK(model)
-}
-
-func (c GroupController) Update(dto models.Group) revel.Result {
-	//validate the basic fields
-	dto.Validate(c.Validation)
-	// if dto.Id == nil {
-	// 	//should be a create operation instead of updated
-	// 	return c.RenderInternalServerError()		
-	// }
-	// model, err := groupRepository.FindOne(*dto.Id)
-	// if err != nil {
-	// 	return c.RenderInternalServerError()
-	// }
-	// if (model == nil) {
-	// 	return c.RenderNotFound()
-	// }
-	// model.Name = dto.Name
-	// model.ImageUrl = dto.ImageUrl
-	// model.LastModifiedDate = commons.InitializeTime(time.Now())
-	// err = groupRepository.Update(&model)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return c.RenderInternalServerError()
-	// }
-	return c.RenderOK(dto)
 }
 
 func (c GroupController) Delete(id int64) revel.Result {
 	model, err := groupRepository.FindOne(id)
 	if err != nil {
-		return c.RenderInternalServerError()
+		log.Println(err)
+		return c.RenderInternalServerError("error.internalServerError")
 	}
 	if (model == nil) {
-		return c.RenderNotFound()
+		return c.RenderNotFound("error.generic.notFound")
 	}
-	err = groupRepository.Delete(&model)
+	err = groupRepository.Delete(model)
 	if err != nil {
 		log.Println(err)
-		return c.RenderInternalServerError()
+		return c.RenderInternalServerError("error.internalServerError")
 	}
 	return c.RenderOK(model)
 }

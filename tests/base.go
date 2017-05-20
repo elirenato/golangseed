@@ -3,7 +3,6 @@ package tests
 import (
 	"github.com/revel/revel"
 	"github.com/revel/revel/testing"
-	"github.com/elirenato/golangseed/app/controllers"
 	"github.com/elirenato/golangseed/app/filters"
 	"github.com/elirenato/golangseed/app/repositories"
 	"github.com/elirenato/golangseed/app/models"
@@ -23,13 +22,13 @@ const (
 
 var (
 	authenticationToken = "-"
-	userRepository = repositories.NewUserRepository()
+	userRepository = repositories.NewUserRepository(&commons.Dbm)
 )
 func (t *BaseTest) Before() {
 	var err error	
 	var user *models.User
 	if authenticationToken == "-" {
-		user, err = userRepository.GetByEmail(controllers.Dbm, defaultUserEmail)
+		user, err = userRepository.GetByEmail(defaultUserEmail)
 		if err != nil {
 			log.Fatal(err)
 			return

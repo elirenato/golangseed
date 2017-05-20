@@ -14,3 +14,8 @@ error.group.alreadyExists=Já existe um grupo com este nome
 
 error.generic.validation=Um ou mais campos requeridos não foram preenchidos ou são inválidos
 error.generic.invalidBody=Corpo da mensagem não é um JSON reconhecido pelo sistema
+error.generic.invalidCreateId=Um novo recurso não pode ter um Id
+error.generic.invalidUpdateId=Uma alteração de recurso deve ter um Id
+error.generic.notFound=Recurso requisitado não encontrado
+
+error.internalServerError=Erro no servidor, tente novamente mais tarde

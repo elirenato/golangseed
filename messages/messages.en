@@ -14,3 +14,8 @@ error.group.alreadyExists=A group already exists with this name
 
 error.generic.validation=One or more required fields were not filled or they have invalid values
 error.generic.invalidBody=Invalid request body. It is not a valid json information
+error.generic.invalidCreateId=A new resource cannot have an Id
+error.generic.invalidUpdateId=A change of a resource should have a valid Id
+error.generic.notFound=Request resource not found
+
+error.internalServerError=Internal server error. Try again later

@@ -19,21 +19,20 @@ type UserController struct {
 	BaseController
 }
 
-var userRepository = repositories.NewUserRepository()
+var userRepository = repositories.NewUserRepository(&commons.Dbm)
 
 func (c UserController) Read(email string) revel.Result {
 	if commons.IsBlank(email) {
 		log.Println("Param required not informed")
-		return c.RenderInternalServerError()
+		return c.RenderInternalServerError("error.internalServerError")
 	}
-	user, err := userRepository.GetByEmail(Dbm, email)
+	user, err := userRepository.GetByEmail(email)
 	if err != nil {
 		log.Println(err)
-		return c.RenderInternalServerError()
+		return c.RenderInternalServerError("error.internalServerError")
 	}
 	if (user == nil) {
-		log.Println(fmt.Sprintf("User not found with the email %s", email))
-		return c.RenderNotFound()
+		return c.RenderNotFound("error.generic.notFound")
 	}
 	return c.RenderOK(user)
 }
@@ -53,7 +52,7 @@ func (c UserController) Authenticate() revel.Result {
 		return c.RenderBadRequest("error.authentication")
 	}
 	var token string
-	user, err := userRepository.GetByEmail(Dbm, email)
+	user, err := userRepository.GetByEmail(email)
 	if err == nil  {
 		if user == nil {
 			log.Println(c.Validation.Errors)
@@ -95,7 +94,7 @@ func (c UserController) Register() revel.Result {
 	hashedPassword, err = bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil && err != sql.ErrNoRows {
 		log.Println(err)
-		return c.RenderInternalServerError()
+		return c.RenderInternalServerError("error.internalServerError")
 	}
 	user := &models.User{
 		FirstName: null.NewString(firstName, true),
@@ -105,7 +104,7 @@ func (c UserController) Register() revel.Result {
 		CreatedDate: null.NewTime(time.Now(), true),
 		PasswordHash: null.NewString(string(hashedPassword), true),
 	}
-	err = userRepository.Persist(Dbm, user);
+	err = userRepository.Persist(user);
 	if err != nil {
 		// TODO improve the error handler for user already exists
 		// pqError := err.(*pq.Error)
@@ -114,7 +113,7 @@ func (c UserController) Register() revel.Result {
 			log.Println(fmt.Sprintf("An user already exists with the name %s", email))
 			return c.RenderBadRequest("error.registration.alreadyExists")
 		}
-		return c.RenderInternalServerError()
+		return c.RenderInternalServerError("error.internalServerError")
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash.String), []byte(password))
 	var token string

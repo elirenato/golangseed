@@ -56,3 +56,7 @@ func ValidateEmail(v *revel.Validation, email string) *revel.ValidationResult {
 		revel.Match{emailPattern},
 	)
 }
+
+func (u *User) SetLastInsertID(value int64) {
+	u.Id = null.NewInt(value, true)
+}

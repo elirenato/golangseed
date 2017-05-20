@@ -11,13 +11,17 @@ type UserRepository struct {
 	BaseRepository
 }
 
-func NewUserRepository() UserRepository {
-	return UserRepository{} 
+func NewUserRepository(dbm **gorp.DbMap) UserRepository {
+	instance := UserRepository{}
+	instance.TableName = "users"
+	instance.Dbm = dbm;
+	return instance
 }
 
-func (c UserRepository) GetByEmail(dbm *gorp.DbMap, email string) (*models.User, error) {
+
+func (c UserRepository) GetByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := dbm.SelectOne(&user, "select * from users where email=$1", email)
+	err := (*c.Dbm).SelectOne(&user, "select * from users where email=$1", email)
 	if err != nil  {
 		if sql.ErrNoRows == err {
 			return nil, nil
@@ -26,8 +30,4 @@ func (c UserRepository) GetByEmail(dbm *gorp.DbMap, email string) (*models.User,
 		return nil, err
 	}	
 	return &user, nil	
-}
-
-func (c UserRepository) Persist(dbm *gorp.DbMap, values interface{}) (error) {
-	return dbm.Insert(values)
 }

@@ -1,4 +1,4 @@
-package controllers
+package commons
 
 import (
 	"fmt"
@@ -12,6 +12,10 @@ import (
 var (
 	Dbm *gorp.DbMap
 )
+
+type Validate interface {
+	Validate(v *revel.Validation)
+}
 
 func InitDB() {	
 	userName := revel.Config.StringDefault("db.user","username")

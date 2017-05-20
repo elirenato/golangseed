@@ -33,6 +33,6 @@ func (u *Group) ValidateName(v *revel.Validation) *revel.ValidationResult {
 	)
 }
 
-func (u *Group) SetLastInsertID(value int64) {
+func (u *Group) SetLastInsertIDInt64(value int64) {
 	u.Id = null.NewInt(value, true)
 }
