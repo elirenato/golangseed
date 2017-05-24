@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"github.com/revel/revel"
 	"github.com/revel/revel/testing"
 	"github.com/elirenato/golangseed/app/filters"
 	"github.com/elirenato/golangseed/app/repositories"
@@ -50,21 +49,5 @@ func (t *BaseTest) setAuthorization(header *http.Header) {
 }
 
 func (t *BaseTest) Url(endpoint string) string {
-	var protocol string
-	if revel.Config.BoolDefault("http.ssl", false) {
-		protocol = "https"
-	} else {
-		protocol = "http"
-	}
-	url := revel.Config.StringDefault("http.addr", "")
-	if commons.IsBlank(url) {
-		url = "localhost"
-	}
-	port := revel.Config.StringDefault("http.port", "9000")
-	return fmt.Sprintf("%s://%s:%s%s", protocol, url, port, endpoint)
+	return commons.GenerateUri(endpoint, nil)
 }
-
-// func (t *BaseTest) After() {
-// 	println("Tear down")
-// }
-

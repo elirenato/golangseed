@@ -6,15 +6,16 @@
 module:testrunner
 # module:jobs
 
-GET     /user/:email                            UserController.Read
+GET     /users/:email                            UserController.Read
 POST    /authenticate                           UserController.Authenticate
 POST    /register                               UserController.Register
 
 #CRUD group
-POST    /group                                   GroupController.Create
-PUT     /group                                   GroupController.Update
-GET     /group/:id                               GroupController.Read
-DELETE  /group/:id                               GroupController.Delete
+POST    /groups                                   GroupController.Create
+PUT     /groups                                   GroupController.Update
+GET     /groups                                   GroupController.List
+GET     /groups/:id                               GroupController.Read
+DELETE  /groups/:id                               GroupController.Delete
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

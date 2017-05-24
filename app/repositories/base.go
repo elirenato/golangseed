@@ -6,6 +6,10 @@ import (
 	"github.com/elirenato/gorp"
 	"fmt"
 	"errors"
+	"github.com/elirenato/golangseed/app/commons"
+	"github.com/elirenato/golangseed/app/models"
+	"reflect"
+	"strings"
 )
 
 type BaseRepository struct {
@@ -49,4 +53,38 @@ func (c BaseRepository) Update(modelPointer interface{}) (error) {
 		return errors.New(fmt.Sprintf("Update count does not match with the value returned %d", updateCount))
 	}
 	return nil
+}
+
+func CreateOrderByStatement(page models.Pageable, modelType reflect.Type) (string, error) {
+	jsonFieldsMap := commons.MapDbFieldByJsonName(modelType)
+	sortStatement := ""
+	if len(page.Sort) > 0 {
+		for _, sort := range page.Sort {
+			fieldName := jsonFieldsMap[sort.Property]
+			if fieldName == "" {
+				err := fmt.Errorf("Sort field name '%s' is not valid", sort.Property)
+				fmt.Println(err)
+				return "", err
+			}
+			if sortStatement == "" {
+				sortStatement = sortStatement + "order by "
+			} else {
+				sortStatement = sortStatement + ", "
+			}
+			if strings.EqualFold(sort.Direction, "desc") {
+				sortStatement = sortStatement + fieldName + " desc"
+			} else if strings.EqualFold(sort.Direction, "asc") || sort.Direction == "" {
+				sortStatement = sortStatement + fieldName
+			} else {
+				err := fmt.Errorf("Sort direction of the field '%s' is not valid. It should be 'asc' or 'desc'", sort.Property)
+				fmt.Println(err)
+				return "", err
+			}
+		}
+	}
+	return sortStatement, nil
+}
+
+func createLimitStatement(page models.Pageable) (string) {
+	return fmt.Sprintf("offset %d limit %d", page.Page * page.Size, page.Size)
 }

@@ -78,7 +78,7 @@ func (t *UserTest) Test101AuthenticationInvalidCredentials() {
 }
 
 func (t *UserTest) Test201GetUserSuccess() {
-	url := fmt.Sprintf("/user/%s", TestUserEmail)
+	url := fmt.Sprintf("/users/%s", TestUserEmail)
 	req := t.GetCustom(t.Url(url))		
 	t.setAuthorization(&req.Header)
 	req.Send()
@@ -88,7 +88,7 @@ func (t *UserTest) Test201GetUserSuccess() {
 }
 
 func (t *UserTest) Test202GetNoExistentUser() {
-	url := fmt.Sprintf("/user?email=%s", InvalidTestUserEmail)
+	url := fmt.Sprintf("/users?email=%s", InvalidTestUserEmail)
 	req := t.GetCustom(t.Url(url))		
 	t.setAuthorization(&req.Header)
 	req.Send()

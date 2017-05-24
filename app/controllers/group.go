@@ -85,6 +85,17 @@ func (c GroupController) Read(id int64) revel.Result {
 	return c.RenderOK(model)
 }
 
+func (c GroupController) List() revel.Result {
+	pageable := c.parsePageableRequest("Id")
+	page, err := groupRepository.ListAll(pageable)
+	if err != nil {
+		log.Println(err)
+		return c.RenderInternalServerError("error.internalServerError")
+	}
+	c.generatePaginationHttpHeaders(page)
+	return c.RenderOK(page.Items)
+}
+
 func (c GroupController) Delete(id int64) revel.Result {
 	model, err := groupRepository.FindOne(id)
 	if err != nil {
