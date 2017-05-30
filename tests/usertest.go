@@ -19,15 +19,7 @@ const (
 )
 
 func (t *UserTest) Test001Register() {
-	body := make(map[string]interface{})
-	body["email"] = TestUserEmail
-	body["firstName"] = TestUserFirstName
-	body["password"] = "123456"
-	request,_ := json.Marshal(body)
-	t.Post("/register", commons.ApplicationJsonContentType, strings.NewReader(string(request)))
-	t.AssertOk()
-	t.AssertContentType(commons.ApplicationJsonContentType)
-	t.AssertContains("\"registered\":true")
+	t.CreateNewUser(TestUserEmail, TestUserFirstName, "123456")
 }
 
 func (t *UserTest) Test002RegisterEmptyField() {

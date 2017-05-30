@@ -39,7 +39,9 @@ func (t *PageableTest) Test002CreateOrderByStatmentSuccess() {
 	page := models.Pageable{
 			Sort: []models.SortOption{sort1, sort2 },
 		}
-	orderByStatement, err := repositories.CreateOrderByStatement(page, reflect.TypeOf(PageableTestStruct{}))
+	dummyInstance := repositories.BaseRepository{}
+	dummyInstance.SetDependencies(nil, "", reflect.TypeOf(PageableTestStruct{}))
+	orderByStatement, err := dummyInstance.CreateOrderByStatement(page)
 	t.Assert(err == nil)
 	t.AssertEqual("order by first_name desc, Field3", orderByStatement)
 }
@@ -56,7 +58,9 @@ func (t *PageableTest) Test003CreateOrderByStatmentErrorNotExistentField() {
 	page := models.Pageable{
 		Sort: []models.SortOption{sort1, sort2 },
 	}
-	orderByStatement, err := repositories.CreateOrderByStatement(page, reflect.TypeOf(PageableTestStruct{}))
+	dummyInstance := repositories.BaseRepository{}
+	dummyInstance.SetDependencies(nil, "", reflect.TypeOf(PageableTestStruct{}))
+	orderByStatement, err := dummyInstance.CreateOrderByStatement(page)
 	t.Assert(err != nil)
 	t.AssertEqual("", orderByStatement )
 	t.AssertEqual(err.Error(), "Sort field name 'notExistentField' is not valid")
@@ -74,7 +78,9 @@ func (t *PageableTest) Test004CreateOrderByStatmentErrorInvalidOrderField() {
 	page := models.Pageable{
 		Sort: []models.SortOption{sort1, sort2 },
 	}
-	orderByStatement, err := repositories.CreateOrderByStatement(page, reflect.TypeOf(PageableTestStruct{}))
+	dummyInstance := repositories.BaseRepository{}
+	dummyInstance.SetDependencies(nil, "", reflect.TypeOf(PageableTestStruct{}))
+	orderByStatement, err := dummyInstance.CreateOrderByStatement(page)
 	t.Assert(err != nil)
 	t.AssertEqual("", orderByStatement )
 	t.AssertEqual(err.Error(), "Sort direction of the field 'firstField' is not valid. It should be 'asc' or 'desc'")

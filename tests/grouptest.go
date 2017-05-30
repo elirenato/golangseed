@@ -16,13 +16,15 @@ type GroupTest struct {
 
 const (
 	defaultGroupName = "First group name"
+	GroupTestUserEmail = "grouptest@localhost.com"
 )
 
 var (
 	lastCreatedGroup *models.Group
+	noDefaultUserToken string
 )
 
-func (t *GroupTest) createGroup(name string) (*models.Group) {
+func (t *GroupTest) createGroup(name string, authToken string) (*models.Group) {
 	group := &models.Group{
 		Name: null.NewString(name, true),
 	}
@@ -30,7 +32,7 @@ func (t *GroupTest) createGroup(name string) (*models.Group) {
 	jsonString := string(jsonByte)
 	req := t.PostCustom(t.Url("/groups"),
 		commons.ApplicationJsonContentType, strings.NewReader(jsonString))
-	t.setAuthorization(&req.Header)
+	t.setCustomAuthorization(&req.Header, authToken)
 	req.Send()
 	t.AssertOk()
 	t.AssertContentType(commons.ApplicationJsonContentType)
@@ -38,8 +40,17 @@ func (t *GroupTest) createGroup(name string) (*models.Group) {
 	return group
 }
 
+func (t *GroupTest) Test000Setup() {
+	t.CreateNewUser(GroupTestUserEmail, "Group Test", "123456")
+	var err error
+	noDefaultUserToken, err = t.CreateAuthenticationToken(GroupTestUserEmail)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func (t *GroupTest) Test001CreateSuccess() {
-	lastCreatedGroup = t.createGroup(defaultGroupName)
+	lastCreatedGroup = t.createGroup(defaultGroupName, authenticationToken)
 	//update the default model to had the id
 	commons.DecodeJson(t.ResponseBody, &lastCreatedGroup)
 }
@@ -132,7 +143,33 @@ func (t *GroupTest) Test302UpdateInvalid() {
 	t.AssertContains("\"error\":\"error.generic.invalidUpdateId\"")
 }
 
-func (t *GroupTest) Test400DeleteSucess() {
+func (t *GroupTest) Test305UpdateForbidden() {
+	updatedGroupName := "Second group name"
+	updateGroup := &models.Group{
+		Id:   lastCreatedGroup.Id,
+		Name: null.NewString(updatedGroupName, true),
+	}
+	jsonByte, _ := json.Marshal(updateGroup)
+	jsonString := string(jsonByte)
+	req := t.PutCustom(t.Url("/groups"),
+		commons.ApplicationJsonContentType, strings.NewReader(jsonString))
+	t.setCustomAuthorization(&req.Header, noDefaultUserToken)
+	req.Send()
+	t.AssertStatus(http.StatusForbidden)
+}
+
+
+func (t *GroupTest) Test400DeleteForbidden() {
+	url := fmt.Sprintf("/groups/%d", lastCreatedGroup.Id.Int64)
+	req := t.DeleteCustom(t.Url(url))
+	t.setCustomAuthorization(&req.Header, noDefaultUserToken)
+	req.Send()
+	t.AssertStatus(http.StatusForbidden)
+	t.AssertContains("\"error\":\"error.forbidden\"")
+}
+
+
+func (t *GroupTest) Test410DeleteSucess() {
 	url := fmt.Sprintf("/groups/%d", lastCreatedGroup.Id.Int64)
 	req := t.DeleteCustom(t.Url(url))
 	t.setAuthorization(&req.Header)
@@ -141,7 +178,7 @@ func (t *GroupTest) Test400DeleteSucess() {
 	t.AssertContains(fmt.Sprintf("\"Name\":\"%s\"", lastCreatedGroup.Name.String))
 }
 
-func (t *GroupTest) Test401UpdateNotFound() {
+func (t *GroupTest) Test411DeleteNotFound() {
 	url := fmt.Sprintf("/groups/%d", lastCreatedGroup.Id.Int64)
 	req := t.DeleteCustom(t.Url(url))
 	t.setAuthorization(&req.Header)
@@ -152,8 +189,14 @@ func (t *GroupTest) Test401UpdateNotFound() {
 
 func (t *GroupTest) Test500ListSuccess() {
 	for i := 1; i <= 10; i++ {
-		t.createGroup(fmt.Sprintf("Group %d", i))
+		t.createGroup(fmt.Sprintf("Group %d", i), authenticationToken)
 	}
+
+	//create more groups with a different owner to make sure that the list just
+	//returns the ones that belongs to the authenticated owner
+	t.createGroup(fmt.Sprintf("No Default Group %d", 1), noDefaultUserToken)
+	t.createGroup(fmt.Sprintf("No Default Group %d", 2), noDefaultUserToken)
+
 	req := t.GetCustom(t.Url("/groups?page=0&size=5"))
 	t.setAuthorization(&req.Header)
 	req.Send()
@@ -165,4 +208,3 @@ func (t *GroupTest) Test500ListSuccess() {
 	//<http://localhost:9100/groups?page=1?size=5>; rel="next",<http://localhost:9100/groups?page=1?size=5>; rel="last",<http://localhost:9100/groups?page=0?size=5>; rel="first"
 	t.AssertHeader("Link", linkExpected)
 }
-

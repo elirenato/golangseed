@@ -17,8 +17,8 @@ var HeaderFilter = func(c *revel.Controller, fc []revel.Filter) {
 	c.Response.Out.Header().Set("Access-Control-Allow-Headers", "Content-type, Authorization, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Accept-Language");
 	// c.Response.Out.Header().Add("Access-Control-Allow-Credentials", "true");
 	// Stop here if its Preflighted OPTIONS request
-    if c.Request.Method == "OPTIONS" {
-        return 
-    }
+	if c.Request.Method == "OPTIONS" {
+		return
+	}
 	fc[0](c, fc[1:]) // Execute the next filter stage.
 }

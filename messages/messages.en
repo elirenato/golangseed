@@ -18,4 +18,5 @@ error.generic.invalidCreateId=A new resource cannot have an Id
 error.generic.invalidUpdateId=A change of a resource should have a valid Id
 error.generic.notFound=Request resource not found
 
+error.forbidden=You don't have permission to access this resource
 error.internalServerError=Internal server error. Try again later

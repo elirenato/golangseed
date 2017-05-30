@@ -18,4 +18,5 @@ error.generic.invalidCreateId=Um novo recurso não pode ter um Id
 error.generic.invalidUpdateId=Uma alteração de recurso deve ter um Id
 error.generic.notFound=Recurso requisitado não encontrado
 
+error.forbidden=Você não tem autorização para acessar este recurso
 error.internalServerError=Erro no servidor, tente novamente mais tarde

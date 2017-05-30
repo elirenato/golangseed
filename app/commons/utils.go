@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"fmt"
 	"github.com/revel/revel"
+	"sort"
 )
 
 const (
@@ -83,8 +84,14 @@ func GenerateUri(endpoint string, params *map[string]string) string {
 	endpoint = strings.Replace(endpoint, baseUrl, "?", -1)
 	uri := fmt.Sprintf("%s%s", baseUrl, endpoint)
 	if params != nil {
+		var keys []string
+		for k := range *params {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
 		first := true
-		for k, v := range *params {
+		for _, k := range keys {
+			v := (*params)[k]
 			if first {
 				uri = uri + "?" + k + "=" + v
 				first = false

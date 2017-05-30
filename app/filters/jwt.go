@@ -9,13 +9,13 @@ import (
 	"strings"
 	"fmt"
 	"bytes"
-	"golang.org/x/net/context"
 	"time"
+	"context"
 )
 
 type JWTToken struct {
 	jwt.Payload
-	UserID int64 `json:"user_id"`
+	UserID      int64 `json:"user_id"`
 	Authorities []string `json:"authorities"`
 }
 
@@ -23,24 +23,24 @@ type JWTTokenHeader string
 
 const (
 	authorizationHeader = "Authorization"
-	jwtTokenHeader = JWTTokenHeader("jwtTokenHeader")
-	bearerPrefix = "Bearer "
+	JwtTokenHeader      = JWTTokenHeader("jwtTokenHeader")
+	bearerPrefix        = "Bearer "
 )
 
 var (
 	anonymousPaths *regexp.Regexp
-	jwtSecretKey JWTTokenHeader
+	jwtSecretKey   JWTTokenHeader
 )
 
 func init() {
 	revel.OnAppStart(func() {
-		anonymousPaths = regexp.MustCompile(revel.Config.StringDefault("auth.jwt.anonymous","/token"))
-		jwtSecretKey = JWTTokenHeader(revel.Config.StringDefault("auth.jwt.secret","my-secret-key-in-production"))
-    })
+		anonymousPaths = regexp.MustCompile(revel.Config.StringDefault("auth.jwt.anonymous", "/token"))
+		jwtSecretKey = JWTTokenHeader(revel.Config.StringDefault("auth.jwt.secret", "my-secret-key-in-production"))
+	})
 }
 
 func parseFromRequest(r *http.Request) (*JWTToken, error) {
- 	authHeader := r.Header.Get(authorizationHeader)
+	authHeader := r.Header.Get(authorizationHeader)
 	if stringUtils.IsNotBlank(authHeader) && strings.HasPrefix(authHeader, bearerPrefix) {
 		authHeader = strings.TrimPrefix(authHeader, bearerPrefix)
 		jwtToken := &JWTToken{}
@@ -57,7 +57,7 @@ func parseFromRequest(r *http.Request) (*JWTToken, error) {
 
 func setResponseError(c *revel.Controller) {
 	c.Response.Status = http.StatusUnauthorized
-	c.Result = c.RenderJSON (map[string]string{
+	c.Result = c.RenderJSON(map[string]string{
 		"id":      "unauthorized",
 		"message": "Invalid or token is not provided",
 	})
@@ -88,13 +88,15 @@ func JWTFilter(c *revel.Controller, fc []revel.Filter) {
 			setResponseError(c)
 			return
 		}
-		context.WithValue(context.Background(),jwtTokenHeader, token)
+		ctx := context.WithValue(c.Request.Context(), JwtTokenHeader, token)
+		newRequest := c.Request.WithContext(ctx)
+		c.Request.Request = newRequest
 	}
 	fc[0](c, fc[1:]) //execute the next filter
 }
 
-func CreateToken(userID int64, authorities[]string) (string, error) {
-	expirationTime := time.Now().AddDate(0,0,1)
+func CreateToken(userID int64, authorities []string) (string, error) {
+	expirationTime := time.Now().AddDate(0, 0, 1)
 	token := JWTToken{}
 	token.UserID = userID
 	token.Authorities = authorities

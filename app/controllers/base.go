@@ -9,13 +9,14 @@ import (
 	"strconv"
 	"strings"
 	"fmt"
+	"github.com/elirenato/golangseed/app/filters"
 )
 
 type BaseController struct {
 	*revel.Controller
 }
 
-func (c BaseController) decodeAndValidateRequest(dtoPtr interface{}) revel.Result {
+func (c *BaseController) decodeAndValidateRequest(dtoPtr interface{}) revel.Result {
 	err := commons.DecodeJsonBody(c.Request.Body, dtoPtr)
 	if err != nil {
 		log.Println(err)
@@ -30,13 +31,13 @@ func (c BaseController) decodeAndValidateRequest(dtoPtr interface{}) revel.Resul
 	return nil
 }
 
-func (c BaseController) RenderOK(o interface{}) (revel.Result) {
+func (c *BaseController) RenderOK(o interface{}) (revel.Result) {
 	c.Response.Status = http.StatusOK
 	c.Response.ContentType = commons.ApplicationJsonContentType
 	return c.RenderJSON(o)
 }
 
-func (c BaseController) RenderNotFound(messageKey string, args ...interface{}) (revel.Result) {
+func (c *BaseController) RenderNotFound(messageKey string, args ...interface{}) (revel.Result) {
 	message := c.Message(messageKey, args)
 	log.Println(message)
 	c.Response.Status = http.StatusNotFound
@@ -47,7 +48,7 @@ func (c BaseController) RenderNotFound(messageKey string, args ...interface{}) (
 	return c.RenderJSON(result)
 }
 
-func (c BaseController) RenderBadRequest(messageKey string, args ...interface{}) (revel.Result) {
+func (c *BaseController) RenderBadRequest(messageKey string, args ...interface{}) (revel.Result) {
 	message := c.Message(messageKey, args)
 	log.Println(message)
 	c.Response.Status = http.StatusBadRequest
@@ -58,7 +59,7 @@ func (c BaseController) RenderBadRequest(messageKey string, args ...interface{})
 	return c.RenderJSON(result)
 }
 
-func (c BaseController) RenderInternalServerError(messageKey string, args ...interface{}) (revel.Result) {
+func (c *BaseController) RenderInternalServerError(messageKey string, args ...interface{}) (revel.Result) {
 	message := c.Message(messageKey, args)
 	log.Println(message)
 	c.Response.Status = http.StatusInternalServerError
@@ -69,7 +70,18 @@ func (c BaseController) RenderInternalServerError(messageKey string, args ...int
 	return c.RenderJSON(result)
 }
 
-func (c BaseController) parsePageableRequest(defaultSort string) models.Pageable {
+func (c *BaseController) RenderForbidden(messageKey string, args ...interface{}) (revel.Result) {
+	message := c.Message(messageKey, args)
+	log.Println(message)
+	c.Response.Status = http.StatusForbidden
+	c.Response.ContentType = commons.ApplicationJsonContentType
+	result := make(map[string]interface{})
+	result["error"] = messageKey
+	result["message"] = message
+	return c.RenderJSON(result)
+}
+
+func (c *BaseController) parsePageableRequest(defaultSort string) models.Pageable {
 	var pageable models.Pageable
 	pageable.Page, _ = strconv.ParseInt(c.Params.Get("page"), 10, 64)
 	if pageable.Page < 0 {
@@ -110,7 +122,7 @@ func (c BaseController) parsePageableRequest(defaultSort string) models.Pageable
 
 //Pagination uses the same principles as the <a href="https://developer.github.com/v3/#pagination">Github API</a>,
 //and follow <a href="http://tools.ietf.org/html/rfc5988">RFC 5988 (Link header)</a>.
-func (c BaseController) generatePaginationHttpHeaders(page *models.Page) {
+func (c *BaseController) generatePaginationHttpHeaders(page *models.Page) {
 	headers := c.Response.Out.Header()
 	headers.Set("X-Total-Count", fmt.Sprintf("%d", page.TotalElements))
 	link := ""
@@ -132,9 +144,21 @@ func (c BaseController) generatePaginationHttpHeaders(page *models.Page) {
 	headers.Set("Link", link)
 }
 
-func (c BaseController)  generateUri(baseUrl string, page int64, size int64) string {
+func (c *BaseController) generateUri(baseUrl string, page int64, size int64) string {
 	params := map[string]string{}
 	params["page"] = fmt.Sprintf("%d", page)
 	params["size"] = fmt.Sprintf("%d", size)
 	return commons.GenerateUri(baseUrl, &params)
+}
+
+func (c *BaseController) GetCurrentToken() *filters.JWTToken {
+	value := c.Request.Context().Value(filters.JwtTokenHeader)
+	if value == nil {
+		panic("#### Not authenticated request ######")
+	}
+	return value.(*filters.JWTToken)
+}
+
+func (c *BaseController) GetCurrentUserId() int64 {
+	return c.GetCurrentToken().UserID
 }

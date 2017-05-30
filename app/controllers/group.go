@@ -39,12 +39,29 @@ func (c GroupController) Create() revel.Result {
 	model := &models.Group{
 		Name: dto.Name,
 		CreatedDate: null.NewTime(time.Now(), true),
+		OwnerId: null.NewInt(c.GetCurrentUserId(), true),
 	}
 	err := groupRepository.Persist(model)
 	if err != nil {
 		return c.treatAndReturnErrorOnSave(err, model)
 	}
 	return c.RenderOK(model)
+}
+
+//find the group to update or delete.
+//Check if the current logged user has permission to change
+func (c GroupController) findToUpdateOrDelete(id int64) (*models.Group, revel.Result) {
+	model, err := groupRepository.FindOne(id)
+	if err != nil {
+		return nil, c.RenderInternalServerError("error.internalServerError")
+	}
+	if model == nil {
+		return nil, c.RenderNotFound("error.generic.notFound")
+	}
+	if model.OwnerId.Int64 != c.GetCurrentUserId() {
+		return nil, c.RenderForbidden("error.forbidden")
+	}
+	return model, nil
 }
 
 func (c GroupController) Update() revel.Result {
@@ -56,17 +73,13 @@ func (c GroupController) Update() revel.Result {
 	if !dto.Id.Valid {
 		return c.RenderBadRequest("error.generic.invalidUpdateId")
 	}
-	model, err := groupRepository.FindOne(dto.Id.Int64)
-	if err != nil {
-		log.Println(err)
-		return c.RenderInternalServerError("error.internalServerError")
-	}
-	if model == nil {
-		return c.RenderNotFound("error.generic.notFound")
+	model, result := c.findToUpdateOrDelete(dto.Id.Int64)
+	if result != nil {
+		return result
 	}
 	model.Name = dto.Name
 	model.LastModifiedDate = null.NewTime(time.Now(), true)
-	err = groupRepository.Update(model)
+	err := groupRepository.Update(model)
 	if err != nil {
 		return c.treatAndReturnErrorOnSave(err, model)
 	}
@@ -87,7 +100,7 @@ func (c GroupController) Read(id int64) revel.Result {
 
 func (c GroupController) List() revel.Result {
 	pageable := c.parsePageableRequest("Id")
-	page, err := groupRepository.ListAll(pageable)
+	page, err := groupRepository.List(pageable, c.GetCurrentUserId())
 	if err != nil {
 		log.Println(err)
 		return c.RenderInternalServerError("error.internalServerError")
@@ -97,15 +110,11 @@ func (c GroupController) List() revel.Result {
 }
 
 func (c GroupController) Delete(id int64) revel.Result {
-	model, err := groupRepository.FindOne(id)
-	if err != nil {
-		log.Println(err)
-		return c.RenderInternalServerError("error.internalServerError")
+	model, result := c.findToUpdateOrDelete(id)
+	if result != nil {
+		return result
 	}
-	if (model == nil) {
-		return c.RenderNotFound("error.generic.notFound")
-	}
-	err = groupRepository.Delete(model)
+	err := groupRepository.Delete(model)
 	if err != nil {
 		log.Println(err)
 		return c.RenderInternalServerError("error.internalServerError")

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+goVersion="$(go version)"
+echo "#######################"
+echo "Go version: $goVersion"
+echo "#######################"
+
 export PGMGR_CONFIG_FILE=".pgmgr-test.json"
 
 pgmgr db drop

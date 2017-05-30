@@ -7,11 +7,12 @@ import (
 )
 
 type Group struct {
-	Id 					null.Int  `db:"id, primarykey, autoincrement"`
-	Name				null.String `db:"name"`
-	ImageUrl			null.String `db:"image_url"`
-	CreatedDate			null.Time	`json:"-" db:"created_date"`
-	LastModifiedDate	null.Time	`json:"-" db:"last_modified_date"`
+	Id               null.Int        `db:"id, primarykey, autoincrement"`
+	Name             null.String        `db:"name"`
+	ImageUrl         null.String        `db:"image_url"`
+	CreatedDate      null.Time      `json:"-" db:"created_date"`
+	LastModifiedDate null.Time      `json:"-" db:"last_modified_date"`
+	OwnerId          null.Int	`json:"-" db:"owner_id"`
 }
 
 const (

@@ -2,5 +2,5 @@ test-results/
 tmp/
 routes/
 login-flow
-.vscode
-.ideia
+.vscode/
+.ideia/
